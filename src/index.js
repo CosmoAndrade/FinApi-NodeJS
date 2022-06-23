@@ -43,7 +43,7 @@ app.post("/account", (request, response) => {
 
 
 
-app.get('/results', (req, res) => {
+app.get('/results', (request, response) => {
   
   return res.json(customers)
 });

@@ -87,6 +87,8 @@ app.post("/deposit", verifyIfExistsAccountCPF, (request, response) => {
     return response.status(201).send();
 });
 
+
+//realizando saque na conta
 app.post("/withdraw", verifyIfExistsAccountCPF, (request, response) => {
     const { amount } = request.body;
     const { customer } = request;
@@ -110,7 +112,53 @@ app.post("/withdraw", verifyIfExistsAccountCPF, (request, response) => {
 
 
 
+//buscar extrato por data
+app.get("/statement/date", verifyIfExistsAccountCPF, (request, response) => {
+    const { customer } = request;
+    const { date } = request.query;
+    //formatando a data e informando ao filtro que o horário não é relevante.
+    const dateFormat = new Date(date + " 00:00");
 
+    //filtro para retornar o extrato somente da data informada.
+    const statement = customer.statement.filter((statement) =>
+    statement.created_at.toDateString() ===
+    new Date (dateFormat).toDateString()
+    );
+
+    //caso existe alguma movimentação neste dia, retorne o extrato
+    return response.json(statement)
+
+});
+
+//atualizar dados do cliente
+app.put("/account", verifyIfExistsAccountCPF, (request, response) => {
+    const { name } = request.body;
+    const { customer } = request;
+
+    customer.name = name;
+    return response.status(201).send();
+});
+
+//obter dados da conta
+app.get("/account", verifyIfExistsAccountCPF, (request, response) => {
+    const { customer } = request;
+    return response.json(customer);
+});
+
+//deletar conta
+app.delete("/account", verifyIfExistsAccountCPF, (request, response) => {
+    const { customer } = request;    
+    customers.splice(customer, 1);
+    return response.status(200).json(customers);
+});
+
+//retornando o balanço da conta
+app.get("/balance", verifyIfExistsAccountCPF, (request, response) => {
+    const { customer } = request;
+    const balance = getBalance(customer.statement);
+    
+    return response.json(balance);
+});
 
 
 
